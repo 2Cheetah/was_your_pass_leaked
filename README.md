@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/2Cheetah/was_your_pass_leaked/graph/badge.svg?token=RHZ0MIYUKX)](https://codecov.io/gh/2Cheetah/was_your_pass_leaked)
+
 # How the service works
 
 1. Receives a request with a password
