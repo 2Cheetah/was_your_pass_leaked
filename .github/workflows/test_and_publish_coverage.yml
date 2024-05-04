@@ -1,0 +1,27 @@
+name: Test and Publish coverage
+
+on:
+  push:
+    branches: '**'
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+
+    - name: Test
+      run: go test -v ./...
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4.0.1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
