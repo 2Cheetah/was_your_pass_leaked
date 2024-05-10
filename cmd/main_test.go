@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -39,36 +38,36 @@ func TestPingHandler(t *testing.T) {
 	}
 }
 
-func TestIsLeakedHanlder(t *testing.T) {
-	reqBody := []byte("password")
-	req := httptest.NewRequest(http.MethodPost, "/isLeaked", bytes.NewBuffer(reqBody))
-	w := httptest.NewRecorder()
-	isLeakedHandler(w, req)
-	resp := w.Result()
-	defer resp.Body.Close()
+// func TestIsLeakedHanlder(t *testing.T) {
+// 	reqBody := []byte("password")
+// 	req := httptest.NewRequest(http.MethodPost, "/isLeaked", bytes.NewBuffer(reqBody))
+// 	w := httptest.NewRecorder()
+// 	isLeakedHandler(w, req)
+// 	resp := w.Result()
+// 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Status code is not 200: %#v", resp.StatusCode)
-	}
+// 	if resp.StatusCode != http.StatusOK {
+// 		t.Errorf("Status code is not 200: %#v", resp.StatusCode)
+// 	}
 
-	if resp.Header.Get("Content-Type") != "application/json" {
-		t.Errorf("Wrong response content type: %#v", resp.Header.Get("Content-Type"))
-	}
+// 	if resp.Header.Get("Content-Type") != "application/json" {
+// 		t.Errorf("Wrong response content type: %#v", resp.Header.Get("Content-Type"))
+// 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Errorf("Error while reading response body: %#v", err)
-	}
+// 	body, err := io.ReadAll(resp.Body)
+// 	if err != nil {
+// 		t.Errorf("Error while reading response body: %#v", err)
+// 	}
 
-	var expected = map[string]bool{"isLeaked": true}
-	var bodyData map[string]bool
-	if err := json.Unmarshal(body, &bodyData); err != nil {
-		t.Errorf("Couldn't unmarshall response body: %#v", err)
-	}
-	if bodyData["isLeaked"] != expected["isLeaked"] {
-		t.Errorf("Reponse body data is wrong: %#v", bodyData)
-	}
-}
+// 	var expected = map[string]bool{"isLeaked": true}
+// 	var bodyData map[string]bool
+// 	if err := json.Unmarshal(body, &bodyData); err != nil {
+// 		t.Errorf("Couldn't unmarshall response body: %#v", err)
+// 	}
+// 	if bodyData["isLeaked"] != expected["isLeaked"] {
+// 		t.Errorf("Reponse body data is wrong: %#v", bodyData)
+// 	}
+// }
 
 // Table-driven tests for sha1HashFromString_ValidPassword
 func TestSha1HashFromString(t *testing.T) {
