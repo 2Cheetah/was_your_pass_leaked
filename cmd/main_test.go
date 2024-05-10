@@ -81,7 +81,8 @@ func TestSha1HashFromString(t *testing.T) {
 		{"p@ssw0rd! ", "113b8d0b7b8a30eb5380e120b696dc58c3f4852d"},
 	}
 
-	for _, testCase := range testCases {
+	for i, testCase := range testCases {
+		t.Logf("Running test case %d", i+1)
 		result := sha1HashFromString(testCase.password)
 		if result != testCase.expected {
 			t.Errorf("sha-1 sum didn't match expected for password %s",

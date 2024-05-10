@@ -8,14 +8,12 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"slices"
+	"strings"
 )
 
 func main() {
-	fmt.Println("Starting server")
-
-	passwordHash := sha1HashFromString("password")
-	listLeakedPasswords(passwordHash)
-	// startServer()
+	startServer()
 }
 
 func startServer() {
@@ -24,6 +22,7 @@ func startServer() {
 	mux.HandleFunc("GET /ping", pingHandler)
 	mux.HandleFunc("POST /isLeaked", isLeakedHandler)
 
+	slog.Info("Starting server")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		panic(err.Error())
 	}
@@ -41,7 +40,10 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func isLeakedHandler(w http.ResponseWriter, r *http.Request) {
-	respMap := map[string]bool{"isLeaked": true}
+	password := r.FormValue("password")
+	isLeaked := checkLeaked(password)
+
+	respMap := map[string]bool{"isLeaked": isLeaked}
 	respJson, err := json.Marshal(respMap)
 	if err != nil {
 		slog.Warn(err.Error())
@@ -72,7 +74,7 @@ func sha1HashFromString(password string) string {
 	return fmt.Sprintf("%x", hash)
 }
 
-func listLeakedPasswords(passwordHash string) {
+func listLeakedPasswords(passwordHash string) []string {
 	firstFiveSymbols := passwordHash[:5]
 	url := fmt.Sprintf("https://api.pwnedpasswords.com/range/%s", firstFiveSymbols)
 	fmt.Printf("Calling: %s\n", url)
@@ -90,5 +92,24 @@ func listLeakedPasswords(passwordHash string) {
 		fmt.Printf("Error while reading response body: %#v", err)
 	}
 
-	fmt.Printf("%s", body)
+	bodyStr := string(body)
+	var listOfStrings []string = strings.Split(bodyStr, "\n")
+	var listOfHashes []string
+
+	for _, hash := range listOfStrings {
+		hash = strings.TrimRight(hash, "\r\n")
+		hash = strings.Split(hash, ":")[0]
+		listOfHashes = append(listOfHashes, hash)
+		// fmt.Printf("%#v", hash)
+	}
+
+	return listOfHashes
+}
+
+func checkLeaked(password string) bool {
+	passwordHash := sha1HashFromString(password)
+	passwordHash = strings.ToUpper(passwordHash)
+	listOfHashes := listLeakedPasswords(passwordHash)
+	containsHash := slices.Contains(listOfHashes, passwordHash[5:])
+	return containsHash
 }
