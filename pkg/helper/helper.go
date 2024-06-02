@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"slices"
 	"strings"
@@ -17,8 +18,9 @@ func Sha1HashFromString(password string) string {
 
 func ListLeakedPasswords(passwordHash string) []string {
 	firstFiveSymbols := passwordHash[:5]
+	slog.Info("Calculated password hash.", "First 5 symbols", firstFiveSymbols)
 	url := fmt.Sprintf("https://api.pwnedpasswords.com/range/%s", firstFiveSymbols)
-	fmt.Printf("Calling: %s\n", url)
+	slog.Info("Calling HIBP API.", "URL:", url)
 
 	res, err := http.Get(url)
 	if err != nil {
